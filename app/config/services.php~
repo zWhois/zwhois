@@ -10,7 +10,7 @@ use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Session as FlashSession;
 use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Http\Response as Response;
-
+use Phalcon\Mvc\Collection\Manager as CollectionManager;
 /**
  * The FactoryDefault Dependency Injector automatically register the right services providing a full stack framework
  */
@@ -82,15 +82,7 @@ $di->set('volt', function($view, $di) {
 /**
  * Database connection is created based in the parameters defined in the configuration file
  */
-$di->set('db', function() use ($config) {
-	$dbclass = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
-	return new $dbclass(array(
-		"host"     => $config->database->host,
-		"username" => $config->database->username,
-		"password" => $config->database->password,
-		"dbname"   => $config->database->name
-	));
-});
+
 
 
 $di->set('mandrill', function() use ($config) {
@@ -133,3 +125,14 @@ $di->set('flash', function(){
 $di->set('elements', function(){
 	return new Elements();
 });
+
+
+// Connecting to a domain socket, falling back to localhost connection
+$di->set('mongo', function() {
+    $mongo = new MongoClient("mongodb://user:pass@localhost:27017/zwhois");
+    return $mongo->selectDB("zwhois");
+}, true);
+
+$di['collectionManager'] = function() {
+	return new CollectionManager();
+};
